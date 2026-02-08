@@ -14,7 +14,7 @@ class CareerGuideApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Rural Path',
+      title: 'RoadAhead',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme(),
       home: const AuthScreen(),

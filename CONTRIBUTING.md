@@ -1,4 +1,4 @@
-# Contributing to Epics - Mera Bhavishya
+# Contributing to RoadAhead
 
 First off, thank you for considering contributing to Epics! It's people like you that make this project a great tool for students discovering their career paths.
 

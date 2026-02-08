@@ -119,8 +119,8 @@ Rounded: 24px+ (FAB, special elements)
 ```
 ┌─────────────────────┐
 │   [App Icon]        │
-│   Mera Bhavishya    │
-│   Tagline           │
+│   RoadAhead         │
+│   Your Career       │
 │                     │
 │   [Name Field]      │
 │   [Phone Field]     │

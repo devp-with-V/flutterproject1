@@ -68,7 +68,7 @@ class _AuthScreenState extends State<AuthScreen> {
               ),
               const SizedBox(height: 20),
               const Text(
-                "Mera Bhavishya",
+                "RoadAhead",
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
@@ -76,7 +76,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 ),
               ),
               const Text(
-                "Rural Career Guidance System",
+                "Your Career. Your Future.",
                 style: TextStyle(color: Colors.grey),
               ),
               const SizedBox(height: 40),

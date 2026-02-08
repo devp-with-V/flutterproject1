@@ -1,4 +1,4 @@
-# 🎓 Epics - Mera Bhavishya
+# 🎓 Epics - RoadAhed 
 
 > A career exploration platform designed for Class 9-10 students to discover their ideal career path through interactive guidance.
 
@@ -8,7 +8,7 @@
 
 ## 📖 Overview
 
-**Epics** (also known as "Mera Bhavishya" - My Future) is a Flutter-based career guidance application specifically designed for students in rural India. It helps Class 9-10 students navigate the critical decision of choosing their academic stream by providing:
+**Epics** (branded as **RoadAhead**) is a Flutter-based career guidance application specifically designed for students in rural India. It helps Class 9-10 students navigate the critical decision of choosing their academic stream by providing:
 
 - **Interactive Career Questionnaire**: A decision-tree based system that identifies student interests
 - **Personalized Recommendations**: Tailored career track suggestions based on responses

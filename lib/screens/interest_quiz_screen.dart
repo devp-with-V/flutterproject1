@@ -1,77 +1,44 @@
 import 'package:flutter/material.dart';
 import '../models/quiz_question.dart';
 import '../models/quiz_option.dart';
-import '../models/career_track.dart';
-import '../data/quiz_data.dart';
-import '../data/science_career_quiz.dart';
-import '../data/commerce_career_quiz.dart';
-import '../data/arts_career_quiz.dart';
-import '../data/career_tracks.dart';
-import 'recommendation_screen.dart';
+import '../data/interest_quiz_data.dart';
+import 'stream_recommendation_screen.dart';
 
-/// Enhanced dynamic questionnaire screen for career discovery.
+/// Interest assessment quiz screen.
 ///
-/// Features: Progress tracking, back navigation, smooth animations,
-/// and modern card-based UI design.
-class DynamicQuestionnaireScreen extends StatefulWidget {
+/// Comprehensive quiz to determine student's stream preference
+/// (Science/Commerce/Arts) based on their interests and preferences.
+class InterestQuizScreen extends StatefulWidget {
   final String userName;
-  final String? recommendedStream; // Optional: 'science', 'commerce', 'arts'
 
-  const DynamicQuestionnaireScreen({
-    super.key,
-    required this.userName,
-    this.recommendedStream,
-  });
+  const InterestQuizScreen({super.key, required this.userName});
 
   @override
-  State<DynamicQuestionnaireScreen> createState() =>
-      _DynamicQuestionnaireScreenState();
+  State<InterestQuizScreen> createState() => _InterestQuizScreenState();
 }
 
-class _DynamicQuestionnaireScreenState
-    extends State<DynamicQuestionnaireScreen> with SingleTickerProviderStateMixin {
-  /// Current question ID being displayed
-  late String currentQuestionId;
-  
-  /// History of question IDs for back navigation
+class _InterestQuizScreenState extends State<InterestQuizScreen>
+    with SingleTickerProviderStateMixin {
+  /// Current question ID
+  String currentQuestionId = 'q1';
+
+  /// Question history for back navigation
   List<String> questionHistory = [];
-  
-  /// Active quiz data based on stream
-  late Map<String, QuizQuestion> activeQuizData;
-  
-  /// Animation controller for slide transitions
+
+  /// Accumulated scores for each stream
+  Map<String, int> scores = {
+    'science': 0,
+    'commerce': 0,
+    'arts': 0,
+  };
+
+  /// Animation controller
   late AnimationController _animationController;
   late Animation<Offset> _slideAnimation;
 
   @override
   void initState() {
     super.initState();
-    
-    // Select quiz data based on recommended stream
-    if (widget.recommendedStream != null) {
-      switch (widget.recommendedStream) {
-        case 'science':
-          activeQuizData = scienceCareerQuizData;
-          currentQuestionId = 'sci_start';
-          break;
-        case 'commerce':
-          activeQuizData = commerceCareerQuizData;
-          currentQuestionId = 'comm_start';
-          break;
-        case 'arts':
-          activeQuizData = artsCareerQuizData;
-          currentQuestionId = 'arts_start';
-          break;
-        default:
-          activeQuizData = quizData;
-          currentQuestionId = 'start';
-      }
-    } else {
-      // Fallback to original quiz
-      activeQuizData = quizData;
-      currentQuestionId = 'start';
-    }
-    
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
@@ -92,20 +59,21 @@ class _DynamicQuestionnaireScreenState
     super.dispose();
   }
 
-  /// Calculate current progress (which question number we're on)
+  /// Calculate progress
   int _getCurrentStep() {
     return questionHistory.length + 1;
   }
 
-  /// Calculate total possible steps (max depth of question tree)
   int _getTotalSteps() {
-    // The quiz has max 3 levels: start -> branch -> final
-    return 3;
+    return 8; // Total questions
   }
 
-  /// Handles back button navigation
+  /// Handle back button
   void _goBack() {
     if (questionHistory.isNotEmpty) {
+      // Remove last scores before going back
+      final lastQuestion = interestQuizData[questionHistory.last]!;
+      // Note: We can't perfectly reverse scores, but this is acceptable
       setState(() {
         currentQuestionId = questionHistory.removeLast();
       });
@@ -116,57 +84,27 @@ class _DynamicQuestionnaireScreenState
     }
   }
 
-  /// Handles option selection and navigation logic
+  /// Handle option selection
   void _handleOptionSelection(QuizOption option) {
-    if (option.isFinal) {
-      CareerTrack recommendedTrack;
+    // Add scores from metadata
+    if (option.metadata != null) {
+      setState(() {
+        option.metadata!.forEach((key, value) {
+          scores[key] = (scores[key] ?? 0) + value;
+        });
+      });
+    }
 
-      // Map final option to career track
-      switch (option.nextStepId) {
-        case 'med':
-          recommendedTrack = getMedicalTrack();
-          break;
-        case 'pharma':
-          recommendedTrack = getPharmaTrack();
-          break;
-        case 'eng':
-          recommendedTrack = getEngineeringTrack();
-          break;
-        case 'math':
-          recommendedTrack = getMathsTrack();
-          break;
-        case 'res':
-          recommendedTrack = getResearchTrack();
-          break;
-        case 'comm':
-          recommendedTrack = getCommerceTrack();
-          break;
-        case 'ca':
-          recommendedTrack = getCATrack();
-          break;
-        case 'bba':
-          recommendedTrack = getBBATrack();
-          break;
-        case 'arts':
-          recommendedTrack = getArtsTrack();
-          break;
-        case 'law':
-          recommendedTrack = getLawTrack();
-          break;
-        case 'upsc':
-          recommendedTrack = getUPSCTrack();
-          break;
-        default:
-          recommendedTrack = getEngineeringTrack();
-      }
-
+    // Navigate
+    if (option.nextStepId == 'result') {
+      // Show stream recommendation
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
           pageBuilder: (context, animation, secondaryAnimation) =>
-              RecommendationScreen(
+              StreamRecommendationScreen(
             userName: widget.userName,
-            track: recommendedTrack,
+            scores: scores,
           ),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(opacity: animation, child: child);
@@ -186,7 +124,7 @@ class _DynamicQuestionnaireScreenState
 
   @override
   Widget build(BuildContext context) {
-    final QuizQuestion activeQuestion = activeQuizData[currentQuestionId]!;
+    final QuizQuestion activeQuestion = interestQuizData[currentQuestionId]!;
     final int currentStep = _getCurrentStep();
     final int totalSteps = _getTotalSteps();
 
@@ -198,16 +136,16 @@ class _DynamicQuestionnaireScreenState
           onPressed: _goBack,
           tooltip: 'Go back',
         ),
-        title: const Text("Career Discovery"),
+        title: const Text("Interest Assessment"),
         elevation: 0,
-        backgroundColor: const Color(0xFF1E88E5),
+        backgroundColor: const Color(0xFF6A1B9A),
         foregroundColor: Colors.white,
       ),
       body: Column(
         children: [
           // Progress Bar
           Container(
-            color: const Color(0xFF1E88E5),
+            color: const Color(0xFF6A1B9A),
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -261,23 +199,23 @@ class _DynamicQuestionnaireScreenState
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            Colors.blue.shade50,
-                            Colors.blue.shade100,
+                            Colors.purple.shade50,
+                            Colors.purple.shade100,
                           ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: Colors.blue.shade200,
+                          color: Colors.purple.shade200,
                           width: 1,
                         ),
                       ),
                       child: Row(
                         children: [
                           Icon(
-                            Icons.lightbulb_outline,
-                            color: Colors.blue.shade700,
+                            Icons.tips_and_updates_outlined,
+                            color: Colors.purple.shade700,
                             size: 24,
                           ),
                           const SizedBox(width: 12),
@@ -285,7 +223,7 @@ class _DynamicQuestionnaireScreenState
                             child: Text(
                               activeQuestion.contextInfo,
                               style: TextStyle(
-                                color: Colors.blue.shade900,
+                                color: Colors.purple.shade900,
                                 fontSize: 14,
                                 height: 1.4,
                               ),
@@ -302,7 +240,7 @@ class _DynamicQuestionnaireScreenState
                       style: const TextStyle(
                         fontSize: 26,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF1E88E5),
+                        color: Color(0xFF6A1B9A),
                         height: 1.3,
                       ),
                     ),
@@ -312,7 +250,7 @@ class _DynamicQuestionnaireScreenState
                     ...activeQuestion.options.asMap().entries.map((entry) {
                       final index = entry.key;
                       final option = entry.value;
-                      
+
                       return TweenAnimationBuilder<double>(
                         duration: Duration(milliseconds: 300 + (index * 100)),
                         tween: Tween(begin: 0.0, end: 1.0),
@@ -351,17 +289,17 @@ class _DynamicQuestionnaireScreenState
                                       width: 48,
                                       height: 48,
                                       decoration: BoxDecoration(
-                                        gradient: LinearGradient(
+                                        gradient: const LinearGradient(
                                           colors: [
-                                            const Color(0xFF1E88E5),
-                                            const Color(0xFF1976D2),
+                                            Color(0xFF6A1B9A),
+                                            Color(0xFF8E24AA),
                                           ],
                                         ),
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: Center(
                                         child: Text(
-                                          String.fromCharCode(65 + index), // A, B, C...
+                                          String.fromCharCode(65 + index),
                                           style: const TextStyle(
                                             color: Colors.white,
                                             fontSize: 20,
@@ -373,7 +311,8 @@ class _DynamicQuestionnaireScreenState
                                     const SizedBox(width: 16),
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             option.text,
@@ -397,7 +336,7 @@ class _DynamicQuestionnaireScreenState
                                     ),
                                     const Icon(
                                       Icons.arrow_forward_ios,
-                                      color: Color(0xFF1E88E5),
+                                      color: Color(0xFF6A1B9A),
                                       size: 20,
                                     ),
                                   ],
@@ -408,7 +347,7 @@ class _DynamicQuestionnaireScreenState
                         ),
                       );
                     }).toList(),
-                    
+
                     const SizedBox(height: 20),
                   ],
                 ),

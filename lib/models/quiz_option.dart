@@ -12,11 +12,15 @@ class QuizOption {
   /// Whether this option leads to a final recommendation
   final bool isFinal;
 
+  /// Metadata for scoring (e.g., stream points: {'science': 3, 'arts': 0, 'commerce': 0})
+  final Map<String, int>? metadata;
+
   /// Creates a new quiz option
   QuizOption({
     required this.text,
     required this.description,
     required this.nextStepId,
     this.isFinal = false,
+    this.metadata,
   });
 }

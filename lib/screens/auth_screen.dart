@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'questionnaire_screen.dart';
+import 'dashboard_screen.dart';
 
 /// Authentication screen with OTP-based login.
 ///
@@ -42,7 +42,7 @@ class _AuthScreenState extends State<AuthScreen> {
         context,
         MaterialPageRoute(
           builder: (context) =>
-              DynamicQuestionnaireScreen(userName: _nameController.text),
+              DashboardScreen(userName: _nameController.text),
         ),
       );
     } else {

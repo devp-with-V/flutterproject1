@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'questionnaire_screen.dart';
 import 'refinement_quiz_screen.dart';
 import 'stream_exploration_screen.dart';
+import 'career_path_questionnaire_screen.dart';
 
 /// Stream recommendation screen showing Science/Commerce/Arts results.
 ///
@@ -253,16 +254,31 @@ class StreamRecommendationScreen extends StatelessWidget {
                       height: 56,
                       child: ElevatedButton(
                         onPressed: () {
-                          // Navigate to branch-specific quiz
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => DynamicQuestionnaireScreen(
-                                userName: userName,
-                                recommendedStream: recommended,
+                          // For Commerce and Arts, show career path questionnaire
+                          // For Science, show existing dynamic questionnaire
+                          if (recommended == 'commerce' || recommended == 'arts') {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => CareerPathQuestionnaireScreen(
+                                  userName: userName,
+                                  selectedStream: recommended,
+                                  streamScores: scores,
+                                ),
                               ),
-                            ),
-                          );
+                            );
+                          } else {
+                            // Science stream - keep existing flow
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => DynamicQuestionnaireScreen(
+                                  userName: userName,
+                                  recommendedStream: recommended,
+                                ),
+                              ),
+                            );
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: streamColor,

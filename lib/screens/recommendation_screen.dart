@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/career_track.dart';
-import 'roadmap_screen.dart';
+import 'main_dashboard_screen.dart';
 
 /// Recommendation screen showing the suggested career path.
 ///
@@ -130,8 +130,10 @@ class RecommendationScreen extends StatelessWidget {
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            MainRoadmapScreen(userName: userName, track: track),
+                        builder: (context) => MainDashboardScreen(
+                          userName: userName,
+                          selectedTrack: track,
+                        ),
                       ),
                     );
                   },
@@ -142,7 +144,7 @@ class RecommendationScreen extends StatelessWidget {
                     ),
                   ),
                   child: const Text(
-                    "View Detailed Roadmap",
+                    "Go to Dashboard",
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
